@@ -25,37 +25,39 @@ extension Report: CustomStringConvertible {
             lines.append(explanation.commented)
         }
 
-        enumeration:
-        for (testNumber, outcome) in zip(1...count, outcomes) {
-            var components: [String?] = [
-                outcome.ok ? "ok" : "not ok",
-                "\(testNumber)",
-                outcome.description,
-            ]
+        if count > 0 {
+            enumeration:
+            for (testNumber, outcome) in zip(1...count, outcomes) {
+                var components: [String?] = [
+                    outcome.ok ? "ok" : "not ok",
+                    "\(testNumber)",
+                    outcome.description,
+                ]
 
-            switch outcome.directive {
-            case .none: break
-            case .skip(let explanation):
-                components.append(contentsOf: ["# SKIP", explanation])
-            case .todo(let explanation):
-                components.append(contentsOf: ["# TODO", explanation])
-            case .bailOut(let explanation):
-                lines.append(["Bail out!", explanation].compactMap { $0 }.joined(separator: " "))
-                break enumeration
-            }
+                switch outcome.directive {
+                case .none: break
+                case .skip(let explanation):
+                    components.append(contentsOf: ["# SKIP", explanation])
+                case .todo(let explanation):
+                    components.append(contentsOf: ["# TODO", explanation])
+                case .bailOut(let explanation):
+                    lines.append(["Bail out!", explanation].compactMap { $0 }.joined(separator: " "))
+                    break enumeration
+                }
 
-            lines.append(components.compactMap { $0 }.joined(separator: " "))
+                lines.append(components.compactMap { $0 }.joined(separator: " "))
 
-            if let metadata = outcome.metadata as? [String: CustomStringConvertible] {
-                let yaml = #"""
-                ---
-                \#(metadata.sorted(by: { $0.key < $1.key })
-                           .map { "\($0.key): \($0.value)" }
-                           .joined(separator: "\n"))
-                ...
-                
-                """#
-                lines.append(yaml.indented())
+                if let metadata = outcome.metadata as? [String: CustomStringConvertible] {
+                    let yaml = #"""
+                    ---
+                    \#(metadata.sorted(by: { $0.key < $1.key })
+                               .map { "\($0.key): \($0.value)" }
+                               .joined(separator: "\n"))
+                    ...
+
+                    """#
+                    lines.append(yaml.indented())
+                }
             }
         }
 
