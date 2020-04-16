@@ -7,6 +7,12 @@ public struct Report {
         self.explanation = explanation
         self.outcomes = outcomes
     }
+
+    public static func consolidation(of reports: [Report]) -> Report {
+        let explanation = reports.compactMap { $0.explanation }.joined(separator: "\n")
+        let outcomes = reports.flatMap { $0.outcomes }
+        return Report(explanation: explanation.isEmpty ? nil : explanation, outcomes)
+    }
 }
 
 // MARK: - CustomStringConvertible
