@@ -1,5 +1,3 @@
-import Yams
-
 public struct Report {
     public static let version: Int = 13
     public let explanation: String?
@@ -48,8 +46,15 @@ extension Report: CustomStringConvertible {
 
             lines.append(components.compactMap { $0 }.joined(separator: " "))
 
-            if let metadata = outcome.metadata,
-                let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
+            if let metadata = outcome.metadata as? [String: CustomStringConvertible] {
+                let yaml = #"""
+                ---
+                \#(metadata.sorted(by: { $0.key < $1.key })
+                           .map { "\($0.key): \($0.value)" }
+                           .joined(separator: "\n"))
+                ...
+                
+                """#
                 lines.append(yaml.indented())
             }
         }
