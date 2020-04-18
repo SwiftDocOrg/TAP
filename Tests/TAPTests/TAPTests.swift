@@ -2,19 +2,19 @@ import XCTest
 import TAP
 
 final class TAPTests: XCTestCase {
-    func testExample() {
-        let report = Report(explanation: "Run tests", [
+    func testExample() throws {
+        let report = try [
             test(true),
             test(false),
             test({ throw Directive.skip(explanation: "unnecessary") }),
             test({ throw Directive.todo(explanation: "unimplemented") }),
-            test({ throw Directive.bailOut(explanation: "😱") })
-        ].map { $0() })
+            test({ throw BailOut("😱") }),
+            test(true)
+        ].run()
 
         let expected = """
         TAP version 13
-        1..5
-        # Run tests
+        1..6
         ok 1
         not ok 2
           ---
@@ -24,7 +24,13 @@ final class TAPTests: XCTestCase {
           ...
           \("" /* keep indentation level for blank line */)
         ok 3 # SKIP unnecessary
-        ok 4 # TODO unimplemented
+        not ok 4 # TODO unimplemented
+          ---
+          column: 17
+          file: \(#file)
+          line: 10
+          ...
+          \("" /* keep indentation level for blank line */)
         Bail out! 😱
         """
 
@@ -33,8 +39,8 @@ final class TAPTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
-    func testUsage() {
-        TAP([
+    func testUsage() throws {
+        try TAP([
             test(true)
         ])
     }

@@ -1,19 +1,41 @@
 import Yams
 
+/**
+ A summary of test results in TAP format.
+ */
 public struct Report {
-    public static let version: Int = 13
-    public let explanation: String?
-    public let outcomes: [Outcome]
+    /**
+     From the [TAP v13 specification](https://testanything.org/tap-version-13-specification.html):
 
-    public init(explanation: String? = nil, _ outcomes: [Outcome]) {
-        self.explanation = explanation
-        self.outcomes = outcomes
+     > ### The version
+     >
+     > To indicate that this is TAP13 the first line must be
+     >
+     > `TAP version 13`
+     */
+    public static let version: Int = 13
+
+    /// The test results.
+    public let results: [Result<Outcome, BailOut>]
+
+    /**
+     Creates a new report with the specified test results.
+
+     - Parameter results: The test results.
+     */
+    public init(results: [Result<Outcome, BailOut>]) {
+        self.results = results
     }
 
+    /**
+     Creates a new report that consolidates the test results of other reports.
+
+     - Parameter reports: The reports whose test results are consolidated.
+     - Returns: A consolidated report of test results.
+     */
     public static func consolidation(of reports: [Report]) -> Report {
-        let explanation = reports.compactMap { $0.explanation }.joined(separator: "\n")
-        let outcomes = reports.flatMap { $0.outcomes }
-        return Report(explanation: explanation.isEmpty ? nil : explanation, outcomes)
+        let results = reports.flatMap { $0.results }
+        return Report(results: results)
     }
 }
 
@@ -21,7 +43,7 @@ public struct Report {
 
 extension Report: CustomStringConvertible {
     public var description: String {
-        let count = outcomes.count
+        let count = results.count
 
         var lines: [String] = []
         lines.reserveCapacity(count + 2)
@@ -29,34 +51,33 @@ extension Report: CustomStringConvertible {
         lines.append("TAP version \(Report.version)")
         lines.append("1..\(count)")
 
-        if let explanation = explanation {
-            lines.append(explanation.commented)
-        }
-
         enumeration:
-        for (testNumber, outcome) in zip(1...count, outcomes) {
-            var components: [String?] = [
-                outcome.ok ? "ok" : "not ok",
-                "\(testNumber)",
-                outcome.description,
-            ]
-
-            switch outcome.directive {
-            case .none: break
-            case .skip(let explanation):
-                components.append(contentsOf: ["# SKIP", explanation])
-            case .todo(let explanation):
-                components.append(contentsOf: ["# TODO", explanation])
-            case .bailOut(let explanation):
-                lines.append(["Bail out!", explanation].compactMap { $0 }.joined(separator: " "))
+        for (testNumber, outcome) in zip(1...count, results) {
+            switch outcome {
+            case .failure(let bailOut):
+                lines.append(["Bail out!", bailOut.description].compactMap { $0 }.joined(separator: " "))
                 break enumeration
-            }
+            case .success(let outcome):
+                var components: [String?] = [
+                    outcome.ok ? "ok" : "not ok",
+                    "\(testNumber)",
+                    outcome.description,
+                ]
 
-            lines.append(components.compactMap { $0 }.joined(separator: " "))
+                switch outcome.directive {
+                case .none: break
+                case .skip(let explanation):
+                    components.append(contentsOf: ["# SKIP", explanation])
+                case .todo(let explanation):
+                    components.append(contentsOf: ["# TODO", explanation])
+                }
 
-            if let metadata = outcome.metadata,
-                let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
-                lines.append(yaml.indented())
+                lines.append(components.compactMap { $0 }.joined(separator: " "))
+
+                if let metadata = outcome.metadata,
+                    let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
+                    lines.append(yaml.indented())
+                }
             }
         }
 
@@ -64,13 +85,9 @@ extension Report: CustomStringConvertible {
     }
 }
 
-fileprivate extension String {
-    var commented: String {
-        split(separator: "\n", omittingEmptySubsequences: false)
-            .map { $0.isEmpty ? "#" : "# \($0)" }
-            .joined(separator: "\n")
-    }
+// MARK: -
 
+fileprivate extension String {
     func indented(by numberOfSpaces: Int = 2) -> String {
         split(separator: "\n", omittingEmptySubsequences: false)
             .map { String(repeating: " ", count: numberOfSpaces) + $0 }
