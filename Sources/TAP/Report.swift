@@ -5,6 +5,8 @@ import Yams
  */
 public struct Report {
     /**
+     The TAP version number.
+
      From the [TAP v13 specification](https://testanything.org/tap-version-13-specification.html):
 
      > ### The version
