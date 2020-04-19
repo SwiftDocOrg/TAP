@@ -39,6 +39,20 @@ final class TAPTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
+    func testEmpty() throws {
+        let tests: [Test] = []
+        let report = try tests.run()
+
+        let expected = """
+        TAP version 13
+        1..0
+        """
+
+        let actual = report.description.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        XCTAssertEqual(expected, actual)
+    }
+
     func testUsage() throws {
         try TAP([
             test(true)

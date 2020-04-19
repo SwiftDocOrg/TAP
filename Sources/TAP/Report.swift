@@ -53,33 +53,35 @@ extension Report: CustomStringConvertible {
         lines.append("TAP version \(Report.version)")
         lines.append("1..\(count)")
 
-        enumeration:
-        for (testNumber, outcome) in zip(1...count, results) {
-            switch outcome {
-            case .failure(let bailOut):
-                lines.append(["Bail out!", bailOut.description].compactMap { $0 }.joined(separator: " "))
-                break enumeration
-            case .success(let outcome):
-                var components: [String?] = [
-                    outcome.ok ? "ok" : "not ok",
-                    "\(testNumber)",
-                    outcome.description,
-                ]
+        if count > 0 {
+            enumeration:
+                for (testNumber, outcome) in zip(1...count, results) {
+                    switch outcome {
+                    case .failure(let bailOut):
+                        lines.append(["Bail out!", bailOut.description].compactMap { $0 }.joined(separator: " "))
+                        break enumeration
+                    case .success(let outcome):
+                        var components: [String?] = [
+                            outcome.ok ? "ok" : "not ok",
+                            "\(testNumber)",
+                            outcome.description,
+                        ]
 
-                switch outcome.directive {
-                case .none: break
-                case .skip(let explanation):
-                    components.append(contentsOf: ["# SKIP", explanation])
-                case .todo(let explanation):
-                    components.append(contentsOf: ["# TODO", explanation])
-                }
+                        switch outcome.directive {
+                        case .none: break
+                        case .skip(let explanation):
+                            components.append(contentsOf: ["# SKIP", explanation])
+                        case .todo(let explanation):
+                            components.append(contentsOf: ["# TODO", explanation])
+                        }
 
-                lines.append(components.compactMap { $0 }.joined(separator: " "))
+                        lines.append(components.compactMap { $0 }.joined(separator: " "))
 
-                if let metadata = outcome.metadata,
-                    let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
-                    lines.append(yaml.indented())
-                }
+                        if let metadata = outcome.metadata,
+                            let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
+                            lines.append(yaml.indented())
+                        }
+                    }
             }
         }
 
