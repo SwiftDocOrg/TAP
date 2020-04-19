@@ -53,9 +53,16 @@ final class TAPTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
-    func testUsage() throws {
+    func testTAP() throws {
+        let expectation = XCTestExpectation()
+
         try TAP([
-            test(true)
+            test {
+                expectation.fulfill()
+                return .success()
+            }
         ])
+
+        wait(for: [expectation], timeout: 1.0)
     }
 }
