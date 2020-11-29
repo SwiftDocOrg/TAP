@@ -25,7 +25,7 @@ public typealias Test = () throws -> Outcome
  */
 public func test(_ body: @escaping @autoclosure () throws -> Bool,
                  _ description: String? = nil,
-                 file: String = #file,
+                 file: String = #filePath,
                  line: Int = #line) -> Test
 {
     return test(body, description, file: file, line: line)
@@ -48,7 +48,7 @@ public func test(_ body: @escaping @autoclosure () throws -> Bool,
 */
 public func test(_ body: @escaping () throws -> Bool,
                  _ description: String? = nil,
-                 file: String = #file,
+                 file: String = #filePath,
                  line: Int = #line) -> Test
 {
         return {
