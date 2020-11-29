@@ -81,4 +81,4 @@ jobs:
             ${{ runner.os }}-spm-swift-${{ matrix.swift }}-
       - name: Build and Test
         run: |
-          swift test --enable-test-discovery
+          swift test
