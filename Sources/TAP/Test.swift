@@ -220,28 +220,3 @@ public func test(_ body: @escaping () throws -> Bool,
 public func test(_ body: @escaping () -> Outcome) -> Test {
     return { body() }
 }
-
-// MARK: -
-
-extension Array where Element == Test {
-    /**
-     Runs the contained tests in order
-     and produces a report summarizing the results.
-
-     - Returns: A report summarizing the test results.
-     */
-    public func run() throws -> Report {
-        let results = try map { test -> Result<Outcome, BailOut> in
-            do {
-                let outcome = try test()
-                return .success(outcome)
-            } catch let bailOut as BailOut {
-                return .failure(bailOut)
-            } catch {
-                throw error
-            }
-        }
-
-        return Report(results: results)
-    }
-}

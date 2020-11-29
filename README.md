@@ -7,7 +7,7 @@ A Swift package for the [Test Anything Protocol][tap] (v13).
 ```swift
 import TAP
 
-try TAP([
+try TAP.run([
     test(1 + 1 == 2), // passes
     test(true == false) // fails
 ])
