@@ -55,7 +55,6 @@ final class TAPTests: XCTestCase {
         ok 1
         not ok 2
           ---
-          column: 17
           file: \(#file)
           line: \(lineOffset + 4)
           ...
@@ -63,7 +62,6 @@ final class TAPTests: XCTestCase {
         ok 3 # SKIP unnecessary
         not ok 4 # TODO unimplemented
           ---
-          column: 17
           file: \(#file)
           line: \(lineOffset + 6)
           ...

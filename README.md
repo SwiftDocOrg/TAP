@@ -18,7 +18,6 @@ TAP version 13
 ok 1
 not ok 2
   ---
-  column: 6
   file: path/to/File.swift
   line: 5
   ...

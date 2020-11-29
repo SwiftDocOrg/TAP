@@ -53,7 +53,7 @@ public struct Outcome {
 
     /**
      Additional information about a test,
-     such as its source location (file / line / column)
+     such as its source location (file / line)
      or the actual and expected results.
 
      Test outcome metadata is encoded as [YAML](https://yaml.org).

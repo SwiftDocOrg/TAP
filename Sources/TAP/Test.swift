@@ -21,15 +21,14 @@ public typealias Test = () throws -> Outcome
                    `nil` by default.
     - file: The source code file in which this test occurs.
     - line: The line in source code on which this test occurs.
-    - column: The column in source code at which this test occurs.
  - Returns: A test.
  */
 public func test(_ body: @escaping @autoclosure () throws -> Bool,
                  _ description: String? = nil,
                  file: String = #file,
-                 line: Int = #line,
-                 column: Int = #column) -> Test {
-    return test(body, description, file: file, line: line, column: column)
+                 line: Int = #line) -> Test
+{
+    return test(body, description, file: file, line: line)
 }
 
 /**
@@ -45,19 +44,17 @@ public func test(_ body: @escaping @autoclosure () throws -> Bool,
                    `nil` by default.
     - file: The source code file in which this test occurs.
     - line: The line in source code on which this test occurs.
-    - column: The column in source code at which this test occurs.
  - Returns: A test.
 */
 public func test(_ body: @escaping () throws -> Bool,
                  _ description: String? = nil,
                  file: String = #file,
-                 line: Int = #line,
-                 column: Int = #column) -> Test {
+                 line: Int = #line) -> Test
+{
         return {
             let metadata: [String: Any] = [
                 "file": file,
                 "line": line,
-                "column": column
             ]
 
             do {
