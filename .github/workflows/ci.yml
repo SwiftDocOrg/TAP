@@ -60,15 +60,10 @@ jobs:
   linux:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        swift:
-          - "5.3"
-
-    name: "Linux (Swift ${{ matrix.swift }})"
+    name: "Ubuntu Linux"
 
     container:
-      image: swift:${{ matrix.swift }}
+      image: swiftlang/swift:nightly-focal
 
     steps:
       - name: Checkout
