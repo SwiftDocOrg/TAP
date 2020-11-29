@@ -1,6 +1,3 @@
-import func Darwin.fputs
-import var Darwin.stdout
-
 public enum TAP {
     /**
      The TAP version number.

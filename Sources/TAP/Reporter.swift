@@ -1,6 +1,12 @@
 import Yams
-import func Darwin.fputs
-import var Darwin.stdout
+
+#if canImport(Glibc)
+import Glibc
+#endif
+
+#if canImport(Darwin)
+import Darwin
+#endif
 
 public final class Reporter {
     private var testNumber: Int = 1
@@ -67,6 +73,6 @@ fileprivate extension String {
 
 fileprivate struct StdoutOutputStream: TextOutputStream {
     mutating func write(_ string: String) {
-        fputs(string, Darwin.stdout)
+        fputs(string, stdout)
     }
 }
