@@ -78,6 +78,16 @@ final class TAPTests: XCTestCase {
     }
 }
 
+extension TAPTests {
+    static var allTests = [
+        ("testTAP", testTAP),
+        ("testEmpty", testEmpty),
+        ("testExample", testExample),
+    ]
+}
+
+// MARK: -
+
 fileprivate extension String {
     var lines: [String] {
         split(separator: "\n", omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespaces) }
