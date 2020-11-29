@@ -6,7 +6,7 @@ import TAP
 XCTMain([
     testCase(TAPTests.allTests)
 ],
-arguments: [],
+arguments: CommandLine.arguments,
 observers: [
     XCTestTAPObserver()
 ])
