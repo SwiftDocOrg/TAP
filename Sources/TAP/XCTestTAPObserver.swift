@@ -7,7 +7,7 @@ public class XCTestTAPObserver: NSObject {
 
 extension XCTestTAPObserver: XCTestObservation {
     public func testSuiteWillStart(_ testSuite: XCTestSuite) {
-        reporter = Reporter(numberOfTests: testSuite.testCaseCount)
+        reporter = reporter ?? Reporter(numberOfTests: testSuite.testCaseCount)
     }
 
     public func testCaseDidFinish(_ testCase: XCTestCase) {
