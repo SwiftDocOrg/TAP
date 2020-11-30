@@ -21,8 +21,8 @@ public final class Reporter {
     public required init<Target: TextOutputStream>(version: Int = TAP.version, numberOfTests: Int, output: inout Target) {
         self.output = output
 
-        write("TAP version \(version)")
-        write("1..\(numberOfTests)")
+        output.write("TAP version \(version)\n")
+        output.write("1..\(numberOfTests)\n")
     }
 
     public func report(_ outcome: Outcome) {
@@ -42,20 +42,16 @@ public final class Reporter {
             components.append(contentsOf: ["# TODO", explanation])
         }
 
-        write(components.compactMap { $0 }.joined(separator: " "))
+        output.write(components.compactMap { $0 }.joined(separator: " ") + "\n")
 
         if let metadata = outcome.metadata,
             let yaml = try? Yams.dump(object: metadata, explicitStart: true, explicitEnd: true, sortKeys: true) {
-            write(yaml.indented())
+            output.write(yaml.indented() + "\n")
         }
     }
 
     public func report(_ bailOut: BailOut) {
-        write(["Bail out!", bailOut.description].compactMap { $0 }.joined(separator: " "))
-    }
-
-    private func write(_ string: String) {
-        output.write(string + "\n")
+        output.write(["Bail out!", bailOut.description].compactMap { $0 }.joined(separator: " ") + "\n")
     }
 }
 
