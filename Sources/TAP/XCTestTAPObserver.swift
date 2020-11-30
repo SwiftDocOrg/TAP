@@ -11,7 +11,12 @@ extension XCTestTAPObserver: XCTestObservation {
     }
 
     public func testCaseDidFinish(_ testCase: XCTestCase) {
-        reporter?.report(.success(testCase.name, directive: testCase.directive, metadata: nil))
+        var directive: Directive?
+        if let testRun = testCase.testRun, testRun.hasBeenSkipped {
+            directive = .skip(explanation: nil)
+        }
+        
+        reporter?.report(.success(testCase.name, directive: directive, metadata: nil))
     }
 
     public func testCase(_ testCase: XCTestCase, didFailWithDescription description: String, inFile filePath: String?, atLine lineNumber: Int) {
@@ -21,13 +26,8 @@ extension XCTestTAPObserver: XCTestObservation {
             "line": lineNumber
         ].compactMapValues { $0 }
 
-        reporter?.report(.failure(testCase.name, directive: testCase.directive, metadata: metadata))
+        reporter?.report(.failure(testCase.name, directive: nil, metadata: metadata))
     }
 }
 
-fileprivate extension XCTestCase {
-    var directive: Directive? {
-        return testRun?.hasBeenSkipped == true ? .skip(explanation: nil) : nil
-    }
-}
 #endif
