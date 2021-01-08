@@ -2,6 +2,10 @@
 
 A Swift package for the [Test Anything Protocol][tap] (v13).
 
+## Requirements
+
+- Swift 5.3+
+
 ## Usage
 
 You can use `TAP` as an alternative to `XCTest` in executable targets
@@ -46,21 +50,29 @@ $ swift test --generate-linuxmain
 
 Open the resulting `LinuxMain.swift` file,
 add an import statement for the `TAP` module
-and update the `XCTMain` invocation to include an `observers` parameter
+and register `XCTestTAPObserver` as a test observer.
+In Swift 5.4 and later,
+you can update the `XCTMain` invocation to include an `observers` parameter
 with an instance of `XCTestTAPObserver`.
 
 ```swift
 #if os(Linux)
 import XCTest
 import TAP
-@testable import YourTestTarget
+@testable import TAPTests
 
+#if swift(>=5.4)
 XCTMain([
-    // add your tests here
+    testCase(TAPTests.allTests)
 ],
 arguments: CommandLine.arguments,
 observers: [
     XCTestTAPObserver()
+])
+#else
+XCTestObservationCenter.shared.addTestObserver(XCTestTAPObserver())
+XCTMain([
+    testCase(TAPTests.allTests)
 ])
 #endif
 ```
@@ -104,10 +116,6 @@ When you run your test bundle,
 Xcode will instantiate the principle class first,
 ensuring that your test observers are registered in time
 to report the progress of all test runs.
-
-## Requirements
-
-- Swift 5.3+
 
 ## Installation
 
