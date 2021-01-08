@@ -4,6 +4,11 @@ A Swift package for the [Test Anything Protocol][tap] (v13).
 
 ## Usage
 
+You can use `TAP` as an alternative to `XCTest` in executable targets
+or as a custom reporter in test targets.
+
+### Running Tests Directly
+
 ```swift
 import TAP
 
@@ -24,6 +29,81 @@ not ok 2
   
 */
 ```
+
+### Custom Test Reporting
+
+#### Linux
+
+Swift Package Manager on Linux
+uses [swift-corelibs-xctest](https://github.com/apple/swift-corelibs-xctest),
+which provides an `XCTMain` that
+
+Run the following command to (re)-generate your main test file:
+
+```terminal
+$ swift test --generate-linuxmain
+```
+
+Open the resulting `LinuxMain.swift` file,
+add an import statement for the `TAP` module
+and update the `XCTMain` invocation to include an `observers` parameter
+with an instance of `XCTestTAPObserver`.
+
+```swift
+#if os(Linux)
+import XCTest
+import TAP
+@testable import YourTestTarget
+
+XCTMain([
+    // add your tests here
+],
+arguments: CommandLine.arguments,
+observers: [
+    XCTestTAPObserver()
+])
+#endif
+```
+
+When you run the `swift test` command,
+your test suite will be reported in TAP format.
+
+#### macOS and iOS
+
+As of Swift 5.3,
+it's not possible to configure a custom reporter
+when running tests directly through Swift Package Manager.
+However, Xcode provides a mechanism for loading custom reports via
+[`XCTestObservationCenter`](https://developer.apple.com/documentation/xctest/xctestobservationcenter).
+
+Create a new file named `TestObservation.swift` and add it to your test bundle.
+Import the `TAP` module,
+declare a subclass of `NSObject` named `TestObservation`,
+and override its designated initializer
+to register `XCTestTAPObserver` with the shared `XCTestObservationCenter`.
+
+```swift
+import TAP
+
+final class TestObservation: NSObject {
+    override init() {
+        XCTestObservationCenter.shared.addTestObserver(XCTestTAPObserver())
+    }
+}
+```
+
+Add an entry to your test target's `Info.plist` file
+designating the fully-qualified name of this class as the `NSPrincipalClass`.
+
+```xml
+    <key>NSPrincipalClass</key>
+    <string>YourTestTarget.TestObservation</string>
+```
+
+When you run your test bundle,
+Xcode will instantiate the principle class first,
+ensuring that your test observers are registered in time
+to report the progress of all test runs.
 
 ## Requirements
 
@@ -49,12 +129,12 @@ let package = Package(
 )
 ```
 
-Add `TAP` as a dependency to your target(s):
+Add `TAP` as a dependency to your test target(s):
 
 ```swift
 targets: [
-.target(
-    name: "YourTarget",
+.testTarget(
+    name: "YourTestTarget",
     dependencies: ["TAP"]),
 ```
 
