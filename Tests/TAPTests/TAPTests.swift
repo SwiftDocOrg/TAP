@@ -2,15 +2,52 @@ import XCTest
 import TAP
 
 final class TAPTests: XCTestCase {
+    private var output = MockOutputStream()
+
+    func testTAP() throws {
+        let expectation = XCTestExpectation()
+
+        let tests: [Test] = [
+            test {
+                expectation.fulfill()
+                return .success()
+            }
+        ]
+
+        try TAP.run(tests, output: &output)
+
+        wait(for: [expectation], timeout: 1.0)
+    }
+
+    func testEmpty() throws {
+        let tests: [Test] = []
+
+        try TAP.run(tests, output: &output)
+
+        let expected = """
+        TAP version 13
+        1..0
+
+        """
+
+        let actual = output.text
+
+        XCTAssertEqual(expected, actual)
+    }
+    
     func testExample() throws {
-        let report = try [
+        let lineOffset = #line
+
+        let tests: [Test] = [
             test(true),
             test(false),
             test({ throw Directive.skip(explanation: "unnecessary") }),
             test({ throw Directive.todo(explanation: "unimplemented") }),
             test({ throw BailOut("😱") }),
             test(true)
-        ].run()
+        ]
+
+        try TAP.run(tests, output: &output)
 
         let expected = """
         TAP version 13
@@ -18,51 +55,42 @@ final class TAPTests: XCTestCase {
         ok 1
         not ok 2
           ---
-          column: 17
           file: \(#file)
-          line: 8
+          line: \(lineOffset + 4)
           ...
-          \("" /* keep indentation level for blank line */)
+
         ok 3 # SKIP unnecessary
         not ok 4 # TODO unimplemented
           ---
-          column: 17
           file: \(#file)
-          line: 10
+          line: \(lineOffset + 6)
           ...
-          \("" /* keep indentation level for blank line */)
+
         Bail out! 😱
+
         """
 
-        let actual = report.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        let actual = output.text
 
-        XCTAssertEqual(expected, actual)
-    }
-
-    func testEmpty() throws {
-        let tests: [Test] = []
-        let report = try tests.run()
-
-        let expected = """
-        TAP version 13
-        1..0
-        """
-
-        let actual = report.description.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        XCTAssertEqual(expected, actual)
-    }
-
-    func testTAP() throws {
-        let expectation = XCTestExpectation()
-
-        try TAP([
-            test {
-                expectation.fulfill()
-                return .success()
-            }
-        ])
-
-        wait(for: [expectation], timeout: 1.0)
+        for (expected, actual) in zip(expected.lines, actual.lines) {
+            XCTAssertEqual(expected, actual)
+        }
     }
 }
+
+extension TAPTests {
+    static var allTests = [
+        ("testTAP", testTAP),
+        ("testEmpty", testEmpty),
+        ("testExample", testExample),
+    ]
+}
+
+// MARK: -
+
+fileprivate extension String {
+    var lines: [String] {
+        split(separator: "\n", omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespaces) }
+    }
+}
+
