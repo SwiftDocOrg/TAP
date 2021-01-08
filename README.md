@@ -27,7 +27,7 @@ not ok 2
 
 ## Requirements
 
-- Swift 5.1+
+- Swift 5.3+
 
 ## Installation
 
