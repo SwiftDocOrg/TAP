@@ -1,3 +1,4 @@
+/// A top-level namespace for the Test Anything Protocol (TAP).
 public enum TAP {
     /**
      The TAP version number.
