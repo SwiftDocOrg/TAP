@@ -1,9 +1,12 @@
 #if canImport(XCTest)
 import XCTest
 
+/// A custom test reporter that conforms to `XCTestObservation`.
 public class XCTestTAPObserver: NSObject {
     private var reporter: Reporter?
 }
+
+// MARK: - XCTestObservation
 
 extension XCTestTAPObserver: XCTestObservation {
     public func testSuiteWillStart(_ testSuite: XCTestSuite) {
