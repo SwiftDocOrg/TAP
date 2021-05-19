@@ -42,7 +42,7 @@ Swift Package Manager on Linux
 uses [swift-corelibs-xctest](https://github.com/apple/swift-corelibs-xctest),
 which provides an `XCTMain` that
 
-Run the following command to (re)-generate your main test file:
+Run the following command **on macOS** to (re)-generate your main test file:
 
 ```terminal
 $ swift test --generate-linuxmain
